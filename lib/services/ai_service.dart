@@ -6,7 +6,7 @@ import '../models/ai_analysis_model.dart';
 
 class AIService {
   // TODO: Replace with your actual Gemini API key
-  static const String _apiKey = 'YOUR_GEMINI_API_KEY_HERE';
+  static const String _apiKey = 'AIzaSyAv9h6mG9rX3Wi782u-0rXb0FIDQARWxnI';
   static const String _baseUrl =
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 
