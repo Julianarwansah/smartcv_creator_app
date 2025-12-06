@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/resume_provider.dart';
 import '../providers/portfolio_provider.dart';
+import 'resume/resume_form_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -128,10 +129,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       subtitle: 'CV profesional dengan AI',
                       color: Colors.blue,
                       onTap: () {
-                        // TODO: Navigate to resume form
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Fitur dalam pengembangan'),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ResumeFormScreen(),
                           ),
                         );
                       },
