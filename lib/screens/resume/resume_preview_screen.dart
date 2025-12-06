@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../providers/resume_provider.dart';
+import '../../services/pdf_service.dart';
 import '../home_screen.dart';
 
 class ResumePreviewScreen extends StatefulWidget {
@@ -14,6 +16,8 @@ class ResumePreviewScreen extends StatefulWidget {
 
 class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
   bool _isGeneratingAI = false;
+  bool _isGeneratingPDF = false;
+  final PDFService _pdfService = PDFService();
 
   @override
   void initState() {
@@ -54,6 +58,51 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
 
     setState(() {
       _isGeneratingAI = false;
+    });
+  }
+
+  Future<void> _downloadPDF() async {
+    setState(() {
+      _isGeneratingPDF = true;
+    });
+
+    final resumeProvider = Provider.of<ResumeProvider>(context, listen: false);
+    
+    if (resumeProvider.currentResume != null) {
+      try {
+        final pdfFile = await _pdfService.generateResumePDF(
+          resumeProvider.currentResume!,
+          resumeProvider.currentResume!.templateId,
+        );
+        
+        if (mounted) {
+          // Share PDF file
+          await Share.shareXFiles(
+            [XFile(pdfFile.path)],
+            subject: 'CV ${resumeProvider.currentResume!.personalInfo.name}',
+          );
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('PDF berhasil dibuat!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Gagal membuat PDF: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+
+    setState(() {
+      _isGeneratingPDF = false;
     });
   }
 
@@ -396,29 +445,6 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
                 ],
 
                 const SizedBox(height: 32),
-
-                // Action Buttons
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      // TODO: Generate PDF
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Fitur download PDF dalam pengembangan',
-                          ),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.download),
-                    label: const Text('Download PDF'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.all(16),
-                    ),
-                  ),
                 ),
               ],
             ),
