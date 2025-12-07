@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/resume_provider.dart';
+import '../../data/cv_template_data.dart';
 import 'resume_form_screen.dart';
 import 'pdf_preview_screen.dart';
+import 'template_change_screen.dart';
 import '../home_screen.dart';
 
 class ResumePreviewScreen extends StatefulWidget {
@@ -170,39 +172,76 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // Template Selector
-                const Text(
-                  'Pilih Template CV',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  height: 120,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      _buildTemplateOption(
+                // Template Change Button
+                Card(
+                  child: InkWell(
+                    onTap: () async {
+                      final newTemplateId = await Navigator.push<String>(
                         context,
-                        resumeProvider,
-                        'minimalist',
-                        'Minimalist',
-                        Colors.grey[100]!,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              TemplateChangeScreen(resume: resume),
+                        ),
+                      );
+
+                      if (newTemplateId != null && mounted) {
+                        final updatedResume = resume.copyWith(
+                          templateId: newTemplateId,
+                        );
+                        await resumeProvider.updateResume(updatedResume);
+
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Template berhasil diubah! 🎨'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.palette,
+                              color: Colors.blue,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Ganti Template CV',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Template saat ini: ${_getTemplateName(resume.templateId)}',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.arrow_forward_ios, size: 16),
+                        ],
                       ),
-                      _buildTemplateOption(
-                        context,
-                        resumeProvider,
-                        'professional',
-                        'Professional',
-                        Colors.blueGrey[50]!,
-                      ),
-                      _buildTemplateOption(
-                        context,
-                        resumeProvider,
-                        'creative',
-                        'Creative',
-                        Colors.indigo[50]!,
-                      ),
-                    ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -596,66 +635,11 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
     );
   }
 
-  Widget _buildTemplateOption(
-    BuildContext context,
-    ResumeProvider provider,
-    String id,
-    String label,
-    Color color,
-  ) {
-    final isSelected = provider.currentResume?.templateId == id;
-    return GestureDetector(
-      onTap: () {
-        if (provider.currentResume != null) {
-          final updatedResume = provider.currentResume!.copyWith(
-            templateId: id,
-          );
-          provider.updateResume(
-            updatedResume,
-            isSilent: true,
-          ); // Update immediately
-        }
-      },
-      child: Container(
-        width: 100,
-        margin: const EdgeInsets.only(right: 12),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(8),
-          border: isSelected
-              ? Border.all(color: Theme.of(context).primaryColor, width: 2)
-              : Border.all(color: Colors.grey[300]!),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              id == 'minimalist'
-                  ? Icons.text_snippet_outlined
-                  : id == 'professional'
-                  ? Icons.business
-                  : Icons.brush,
-              color: isSelected ? Theme.of(context).primaryColor : Colors.grey,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected
-                    ? Theme.of(context).primaryColor
-                    : Colors.black,
-                fontSize: 12,
-              ),
-            ),
-            if (isSelected)
-              const Padding(
-                padding: EdgeInsets.only(top: 4),
-                child: Icon(Icons.check_circle, size: 16, color: Colors.green),
-              ),
-          ],
-        ),
-      ),
+  String _getTemplateName(String templateId) {
+    final template = cvTemplates.firstWhere(
+      (t) => t.id == templateId,
+      orElse: () => cvTemplates[0],
     );
+    return template.name;
   }
 }
