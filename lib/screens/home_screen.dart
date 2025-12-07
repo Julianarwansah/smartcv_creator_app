@@ -148,10 +148,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       subtitle: 'Showcase project Anda',
                       color: Colors.purple,
                       onTap: () {
-                        // TODO: Navigate to portfolio form
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Fitur dalam pengembangan'),
+                            content: Text('Fitur Portfolio segera hadir! 🚀'),
+                            backgroundColor: Colors.purple,
                           ),
                         );
                       },
@@ -173,7 +173,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   TextButton(
                     onPressed: () {
-                      // TODO: Navigate to resume history
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Fitur Riwayat Lengkap segera hadir! 📂',
+                          ),
+                        ),
+                      );
                     },
                     child: const Text('Lihat Semua'),
                   ),

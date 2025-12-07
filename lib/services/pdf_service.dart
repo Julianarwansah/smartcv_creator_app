@@ -411,7 +411,7 @@ class PDFService {
                                 fontWeight: pw.FontWeight.bold,
                               ),
                             ),
-                            pw.Text('${edu.institution}'),
+                            pw.Text(edu.institution),
                           ],
                         ),
                       ),

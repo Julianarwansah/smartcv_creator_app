@@ -55,8 +55,6 @@ class AuthProvider with ChangeNotifier {
         );
 
         debugPrint('DEBUG: Creating user document with name: $userName');
-...
-        debugPrint('DEBUG: Updating user document with name: $userName');
         await _authService.createUserDocument(newUserModel);
         _userModel = newUserModel;
       }
@@ -70,7 +68,7 @@ class AuthProvider with ChangeNotifier {
             'User';
 
         final updatedUserModel = _userModel!.copyWith(name: userName);
-        print('DEBUG: Updating user document with name: $userName');
+        debugPrint('DEBUG: Updating user document with name: $userName');
         await _authService.updateUserData(updatedUserModel);
         _userModel = updatedUserModel;
       }
