@@ -1,15 +1,34 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
 import '../models/resume_model.dart';
 
 class PDFService {
-  // Generate PDF from resume data
+  // Generate PDF from resume data (File)
   Future<File> generateResumePDF(ResumeModel resume, String templateId) async {
+    final pdf = await _buildDocument(resume, templateId);
+    final output = await _getOutputFile(resume.id);
+    await output.writeAsBytes(await pdf.save());
+    return output;
+  }
+
+  // Generate PDF data (Uint8List)
+  Future<Uint8List> generateResumePDFData(
+    ResumeModel resume,
+    String templateId,
+  ) async {
+    final pdf = await _buildDocument(resume, templateId);
+    return pdf.save();
+  }
+
+  Future<pw.Document> _buildDocument(
+    ResumeModel resume,
+    String templateId,
+  ) async {
     final pdf = pw.Document();
 
-    // Choose template based on templateId
     switch (templateId) {
       case 'minimalist':
         _buildMinimalistTemplate(pdf, resume);
@@ -29,12 +48,7 @@ class PDFService {
       default:
         _buildMinimalistTemplate(pdf, resume);
     }
-
-    // Save PDF to file
-    final output = await _getOutputFile(resume.id);
-    await output.writeAsBytes(await pdf.save());
-
-    return output;
+    return pdf;
   }
 
   Future<File> _getOutputFile(String resumeId) async {

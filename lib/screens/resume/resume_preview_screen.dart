@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
 import '../../providers/resume_provider.dart';
-import '../../services/pdf_service.dart';
 import 'resume_form_screen.dart';
+import 'pdf_preview_screen.dart';
 import '../home_screen.dart';
 
 class ResumePreviewScreen extends StatefulWidget {
@@ -17,8 +16,6 @@ class ResumePreviewScreen extends StatefulWidget {
 
 class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
   bool _isGeneratingAI = false;
-  bool _isGeneratingPDF = false;
-  final PDFService _pdfService = PDFService();
 
   @override
   void initState() {
@@ -62,50 +59,20 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
     });
   }
 
-  Future<void> _downloadPDF() async {
-    setState(() {
-      _isGeneratingPDF = true;
-    });
-
+  void _downloadPDF() {
     final resumeProvider = Provider.of<ResumeProvider>(context, listen: false);
 
     if (resumeProvider.currentResume != null) {
-      try {
-        final pdfFile = await _pdfService.generateResumePDF(
-          resumeProvider.currentResume!,
-          resumeProvider.currentResume!.templateId,
-        );
-
-        if (mounted) {
-          // Share PDF file
-          await Share.shareXFiles([
-            XFile(pdfFile.path),
-          ], subject: 'CV ${resumeProvider.currentResume!.personalInfo.name}');
-
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('PDF berhasil dibuat!'),
-                backgroundColor: Colors.green,
-              ),
-            );
-          }
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Gagal membuat PDF: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PdfPreviewScreen(
+            resume: resumeProvider.currentResume!,
+            templateId: resumeProvider.currentResume!.templateId,
+          ),
+        ),
+      );
     }
-
-    setState(() {
-      _isGeneratingPDF = false;
-    });
   }
 
   @override
@@ -133,7 +100,7 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.picture_as_pdf),
-            onPressed: _isGeneratingPDF ? null : _downloadPDF,
+            onPressed: _downloadPDF,
             tooltip: 'Download PDF',
           ),
         ],
@@ -513,22 +480,9 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: _isGeneratingPDF ? null : _downloadPDF,
-                    icon: _isGeneratingPDF
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.download),
-                    label: Text(
-                      _isGeneratingPDF
-                          ? 'Membuat PDF...'
-                          : 'Download & Share PDF',
-                    ),
+                    onPressed: _downloadPDF,
+                    icon: const Icon(Icons.download),
+                    label: const Text('Download & Share PDF'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       foregroundColor: Colors.white,
