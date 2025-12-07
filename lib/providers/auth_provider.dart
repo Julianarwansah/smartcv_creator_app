@@ -132,6 +132,35 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<bool> updateUserProfile({String? name, String? phone}) async {
+    if (_currentUser == null || _userModel == null) {
+      return false;
+    }
+
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final updatedUserModel = _userModel!.copyWith(
+        name: name ?? _userModel!.name,
+        phone: phone ?? _userModel!.phone,
+        updatedAt: DateTime.now(),
+      );
+
+      await _authService.updateUserData(updatedUserModel);
+      _userModel = updatedUserModel;
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<bool> resetPassword(String email) async {
     _isLoading = true;
     _errorMessage = null;
