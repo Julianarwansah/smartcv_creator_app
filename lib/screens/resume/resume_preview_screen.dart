@@ -201,6 +201,43 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
                 ),
                 const SizedBox(height: 24),
 
+                // Template Selector
+                const Text(
+                  'Pilih Template CV',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 120,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      _buildTemplateOption(
+                        context,
+                        resumeProvider,
+                        'minimalist',
+                        'Minimalist',
+                        Colors.grey[100]!,
+                      ),
+                      _buildTemplateOption(
+                        context,
+                        resumeProvider,
+                        'professional',
+                        'Professional',
+                        Colors.blueGrey[50]!,
+                      ),
+                      _buildTemplateOption(
+                        context,
+                        resumeProvider,
+                        'creative',
+                        'Creative',
+                        Colors.indigo[50]!,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
                 // Personal Info
                 _buildSection(
                   'Data Pribadi',
@@ -543,6 +580,66 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTemplateOption(
+    BuildContext context,
+    ResumeProvider provider,
+    String id,
+    String label,
+    Color color,
+  ) {
+    final isSelected = provider.currentResume?.templateId == id;
+    return GestureDetector(
+      onTap: () {
+        if (provider.currentResume != null) {
+          final updatedResume = provider.currentResume!.copyWith(
+            templateId: id,
+          );
+          provider.updateResume(updatedResume); // Update immediately
+        }
+      },
+      child: Container(
+        width: 100,
+        margin: const EdgeInsets.only(right: 12),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(8),
+          border: isSelected
+              ? Border.all(color: Theme.of(context).primaryColor, width: 2)
+              : Border.all(color: Colors.grey[300]!),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              id == 'minimalist'
+                  ? Icons.text_snippet_outlined
+                  : id == 'professional'
+                  ? Icons.business
+                  : Icons.brush,
+              color: isSelected ? Theme.of(context).primaryColor : Colors.grey,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected
+                    ? Theme.of(context).primaryColor
+                    : Colors.black,
+                fontSize: 12,
+              ),
+            ),
+            if (isSelected)
+              const Padding(
+                padding: EdgeInsets.only(top: 4),
+                child: Icon(Icons.check_circle, size: 16, color: Colors.green),
+              ),
+          ],
+        ),
       ),
     );
   }
