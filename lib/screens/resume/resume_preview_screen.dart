@@ -545,19 +545,75 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
   }
 
   Widget _buildSection(String title, IconData icon, Widget content) {
+    final provider = Provider.of<ResumeProvider>(context, listen: false);
+    final templateId = provider.currentResume?.templateId ?? 'minimalist';
+
+    Color iconColor;
+    TextStyle titleStyle;
+    Widget header;
+
+    if (templateId == 'professional') {
+      iconColor = Colors.blue[800]!;
+      titleStyle = TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: Colors.blue[900],
+        letterSpacing: 1.0,
+      );
+      header = Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Colors.blue[200]!, width: 2),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 24, color: iconColor),
+            const SizedBox(width: 8),
+            Text(title.toUpperCase(), style: titleStyle),
+          ],
+        ),
+      );
+    } else if (templateId == 'creative') {
+      iconColor = Colors.purple[400]!;
+      titleStyle = const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+      );
+      header = Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        decoration: BoxDecoration(
+          color: Colors.indigo[400],
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 20, color: Colors.white),
+            const SizedBox(width: 8),
+            Text(title, style: titleStyle),
+          ],
+        ),
+      );
+    } else {
+      // Minimalist (default)
+      iconColor = Colors.black87;
+      titleStyle = const TextStyle(fontSize: 18, fontWeight: FontWeight.bold);
+      header = Row(
+        children: [
+          Icon(icon, size: 20, color: iconColor),
+          const SizedBox(width: 8),
+          Text(title, style: titleStyle),
+        ],
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Icon(icon, size: 20),
-            const SizedBox(width: 8),
-            Text(
-              title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
+        header,
         const SizedBox(height: 12),
         content,
         const SizedBox(height: 24),
@@ -600,7 +656,10 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
           final updatedResume = provider.currentResume!.copyWith(
             templateId: id,
           );
-          provider.updateResume(updatedResume); // Update immediately
+          provider.updateResume(
+            updatedResume,
+            isSilent: true,
+          ); // Update immediately
         }
       },
       child: Container(

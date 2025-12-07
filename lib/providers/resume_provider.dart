@@ -69,20 +69,41 @@ class ResumeProvider with ChangeNotifier {
   }
 
   // Update resume
-  Future<bool> updateResume(ResumeModel resume) async {
-    _isLoading = true;
-    notifyListeners();
+  Future<bool> updateResume(ResumeModel resume, {bool isSilent = false}) async {
+    if (!isSilent) {
+      _isLoading = true;
+      notifyListeners();
+    }
+
+    // Optimistic update
+    _currentResume = resume;
+    if (isSilent) {
+      notifyListeners();
+    }
 
     try {
       await _firestoreService.updateResume(resume);
-      await loadUserResumes(resume.uid);
-      _isLoading = false;
-      notifyListeners();
+
+      // Update local list without triggering full reload
+      final index = _resumes.indexWhere((r) => r.id == resume.id);
+      if (index != -1) {
+        _resumes[index] = resume;
+      } else {
+        _resumes.add(resume);
+      }
+
+      if (!isSilent) {
+        _isLoading = false;
+        notifyListeners();
+      }
       return true;
     } catch (e) {
-      _errorMessage = e.toString();
-      _isLoading = false;
-      notifyListeners();
+      if (!isSilent) {
+        _errorMessage = e.toString();
+        _isLoading = false;
+        notifyListeners();
+      }
+      // Revert optimistic update if needed, but for now we keep it simple
       return false;
     }
   }
