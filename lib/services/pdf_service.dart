@@ -701,180 +701,228 @@ class PDFService {
     );
   }
 
-  // Creative Template (Sidebar Layout)
+  // Creative Template (Sidebar Layout) - Fixed for full content
   void _buildCreativeTemplate(pw.Document pdf, ResumeModel resume) {
     pdf.addPage(
-      pw.Page(
+      pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        margin: pw.EdgeInsets.zero, // Full bleed
+        margin: pw.EdgeInsets.zero,
         build: (context) {
-          return pw.Row(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              // Sidebar (Left - Dark)
-              pw.Container(
-                width: 180,
-                height: double.infinity,
-                padding: const pw.EdgeInsets.all(20),
-                color: PdfColors.blueGrey900,
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    // Avatar/Initials
-                    pw.Center(
-                      child: pw.Container(
-                        width: 80,
-                        height: 80,
-                        decoration: const pw.BoxDecoration(
-                          color: PdfColors.white,
-                          shape: pw.BoxShape.circle,
-                        ),
-                        child: pw.Center(
-                          child: pw.Text(
-                            resume.personalInfo.name.isNotEmpty
-                                ? resume.personalInfo.name[0].toUpperCase()
-                                : 'CV',
-                            style: pw.TextStyle(
-                              fontSize: 32,
-                              fontWeight: pw.FontWeight.bold,
-                              color: PdfColors.blueGrey900,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    pw.SizedBox(height: 20),
-
-                    // Contact Info (White text)
-                    _buildSidebarSection('CONTACT', [
-                      resume.personalInfo.email,
-                      resume.personalInfo.phone,
-                      resume.personalInfo.address,
-                    ]),
-
-                    pw.SizedBox(height: 20),
-
-                    // Skills
-                    if (resume.skills.isNotEmpty)
-                      _buildSidebarSection(
-                        'SKILLS',
-                        resume.skills.map((s) => s.name).toList(),
-                      ),
-
-                    pw.SizedBox(height: 20),
-
-                    // Languages
-                    if (resume.languages.isNotEmpty)
-                      _buildSidebarSection('LANGUAGES', resume.languages),
-                  ],
-                ),
-              ),
-
-              // Main Content (Right - White)
-              pw.Expanded(
-                child: pw.Padding(
-                  padding: const pw.EdgeInsets.all(30),
+          return [
+            pw.Row(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                // Sidebar (Left - Dark) - Fixed width
+                pw.Container(
+                  width: 180,
+                  padding: const pw.EdgeInsets.all(20),
+                  color: PdfColors.blueGrey900,
                   child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
-                      // Header
-                      pw.Text(
-                        resume.personalInfo.name,
-                        style: pw.TextStyle(
-                          fontSize: 30,
-                          fontWeight: pw.FontWeight.bold,
-                          color: PdfColors.blueGrey900,
-                        ),
-                      ),
-                      pw.Text(
-                        resume.experience.isNotEmpty
-                            ? resume.experience.first.position
-                            : 'Professional',
-                        style: const pw.TextStyle(
-                          fontSize: 16,
-                          color: PdfColors.blueGrey500,
-                        ),
-                      ),
-                      pw.SizedBox(height: 20),
-                      pw.Divider(color: PdfColors.blueGrey100),
-
-                      // Summary
-                      if (resume.aiAnalysis?.summaryAi != null) ...[
-                        pw.SizedBox(height: 10),
-                        pw.Text(
-                          'PROFILE',
-                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                        ),
-                        pw.SizedBox(height: 5),
-                        pw.Text(
-                          resume.aiAnalysis!.summaryAi,
-                          style: const pw.TextStyle(fontSize: 10),
-                        ),
-                        pw.SizedBox(height: 15),
-                      ],
-
-                      // Experience
-                      if (resume.experience.isNotEmpty) ...[
-                        pw.Text(
-                          'WORK EXPERIENCE',
-                          style: pw.TextStyle(
-                            fontWeight: pw.FontWeight.bold,
-                            fontSize: 14,
+                      // Avatar/Initials
+                      pw.Center(
+                        child: pw.Container(
+                          width: 80,
+                          height: 80,
+                          decoration: const pw.BoxDecoration(
+                            color: PdfColors.white,
+                            shape: pw.BoxShape.circle,
                           ),
-                        ),
-                        pw.SizedBox(height: 10),
-                        ...resume.experience.map(
-                          (exp) => pw.Container(
-                            margin: const pw.EdgeInsets.only(bottom: 12),
-                            child: pw.Column(
-                              crossAxisAlignment: pw.CrossAxisAlignment.start,
-                              children: [
-                                pw.Text(
-                                  exp.position,
-                                  style: pw.TextStyle(
-                                    fontWeight: pw.FontWeight.bold,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                pw.Row(
-                                  mainAxisAlignment:
-                                      pw.MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    pw.Text(
-                                      exp.company,
-                                      style: const pw.TextStyle(
-                                        fontSize: 11,
-                                        color: PdfColors.grey700,
-                                      ),
-                                    ),
-                                    pw.Text(
-                                      '${exp.startDate} - ${exp.endDate ?? "Present"}',
-                                      style: const pw.TextStyle(
-                                        fontSize: 10,
-                                        color: PdfColors.grey600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                if (exp.description.isNotEmpty)
-                                  pw.Padding(
-                                    padding: const pw.EdgeInsets.only(top: 2),
-                                    child: pw.Text(
-                                      exp.description,
-                                      style: const pw.TextStyle(fontSize: 10),
-                                    ),
-                                  ),
-                              ],
+                          child: pw.Center(
+                            child: pw.Text(
+                              resume.personalInfo.name.isNotEmpty
+                                  ? resume.personalInfo.name[0].toUpperCase()
+                                  : 'CV',
+                              style: pw.TextStyle(
+                                fontSize: 32,
+                                fontWeight: pw.FontWeight.bold,
+                                color: PdfColors.blueGrey900,
+                              ),
                             ),
                           ),
                         ),
-                      ],
+                      ),
+                      pw.SizedBox(height: 20),
+
+                      // Contact Info
+                      _buildSidebarSection('CONTACT', [
+                        resume.personalInfo.email,
+                        resume.personalInfo.phone,
+                        resume.personalInfo.address,
+                      ]),
+
+                      pw.SizedBox(height: 20),
+
+                      // Skills
+                      if (resume.skills.isNotEmpty)
+                        _buildSidebarSection(
+                          'SKILLS',
+                          resume.skills.map((s) => s.name).toList(),
+                        ),
+
+                      pw.SizedBox(height: 20),
+
+                      // Languages
+                      if (resume.languages.isNotEmpty)
+                        _buildSidebarSection('LANGUAGES', resume.languages),
                     ],
                   ),
                 ),
-              ),
-            ],
-          );
+
+                // Main Content (Right - White)
+                pw.Expanded(
+                  child: pw.Padding(
+                    padding: const pw.EdgeInsets.all(30),
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        // Header
+                        pw.Text(
+                          resume.personalInfo.name,
+                          style: pw.TextStyle(
+                            fontSize: 28,
+                            fontWeight: pw.FontWeight.bold,
+                            color: PdfColors.blueGrey900,
+                          ),
+                        ),
+                        pw.Text(
+                          resume.experience.isNotEmpty
+                              ? resume.experience.first.position
+                              : 'Professional',
+                          style: const pw.TextStyle(
+                            fontSize: 14,
+                            color: PdfColors.blueGrey500,
+                          ),
+                        ),
+                        pw.SizedBox(height: 16),
+                        pw.Divider(color: PdfColors.blueGrey200),
+
+                        // Summary
+                        if (resume.aiAnalysis?.summaryAi != null) ...[
+                          pw.SizedBox(height: 12),
+                          pw.Text(
+                            'PROFILE',
+                            style: pw.TextStyle(
+                              fontWeight: pw.FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                          pw.SizedBox(height: 6),
+                          pw.Text(
+                            resume.aiAnalysis!.summaryAi,
+                            style: const pw.TextStyle(fontSize: 10),
+                          ),
+                          pw.SizedBox(height: 16),
+                        ],
+
+                        // Experience
+                        if (resume.experience.isNotEmpty) ...[
+                          pw.Text(
+                            'WORK EXPERIENCE',
+                            style: pw.TextStyle(
+                              fontWeight: pw.FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                          pw.SizedBox(height: 8),
+                          ...resume.experience.map(
+                            (exp) => pw.Container(
+                              margin: const pw.EdgeInsets.only(bottom: 10),
+                              child: pw.Column(
+                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                children: [
+                                  pw.Text(
+                                    exp.position,
+                                    style: pw.TextStyle(
+                                      fontWeight: pw.FontWeight.bold,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  pw.Row(
+                                    mainAxisAlignment:
+                                        pw.MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      pw.Text(
+                                        exp.company,
+                                        style: const pw.TextStyle(
+                                          fontSize: 10,
+                                          color: PdfColors.grey700,
+                                        ),
+                                      ),
+                                      pw.Text(
+                                        '${exp.startDate} - ${exp.endDate ?? "Present"}',
+                                        style: const pw.TextStyle(
+                                          fontSize: 9,
+                                          color: PdfColors.grey600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (exp.description.isNotEmpty)
+                                    pw.Padding(
+                                      padding: const pw.EdgeInsets.only(top: 4),
+                                      child: pw.Text(
+                                        exp.description,
+                                        style: const pw.TextStyle(fontSize: 9),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          pw.SizedBox(height: 12),
+                        ],
+
+                        // Education
+                        if (resume.education.isNotEmpty) ...[
+                          pw.Text(
+                            'EDUCATION',
+                            style: pw.TextStyle(
+                              fontWeight: pw.FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                          pw.SizedBox(height: 8),
+                          ...resume.education.map(
+                            (edu) => pw.Container(
+                              margin: const pw.EdgeInsets.only(bottom: 8),
+                              child: pw.Column(
+                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                children: [
+                                  pw.Text(
+                                    edu.degree,
+                                    style: pw.TextStyle(
+                                      fontWeight: pw.FontWeight.bold,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  pw.Text(
+                                    '${edu.institution} • ${edu.fieldOfStudy}',
+                                    style: const pw.TextStyle(
+                                      fontSize: 10,
+                                      color: PdfColors.grey700,
+                                    ),
+                                  ),
+                                  pw.Text(
+                                    '${edu.startDate} - ${edu.endDate ?? "Present"}',
+                                    style: const pw.TextStyle(
+                                      fontSize: 9,
+                                      color: PdfColors.grey600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ];
         },
       ),
     );
