@@ -82,12 +82,14 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
             XFile(pdfFile.path),
           ], subject: 'CV ${resumeProvider.currentResume!.personalInfo.name}');
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('PDF berhasil dibuat!'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('PDF berhasil dibuat!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
         }
       } catch (e) {
         if (mounted) {

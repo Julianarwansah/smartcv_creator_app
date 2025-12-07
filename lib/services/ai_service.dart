@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/resume_model.dart';
 import '../models/portfolio_model.dart';
@@ -25,7 +26,7 @@ Buat dalam 2-3 kalimat bahasa Indonesia yang profesional untuk CV.
     try {
       return await _generateText(prompt);
     } catch (e) {
-      print('AI Generation failed, using fallback: $e');
+      debugPrint('AI Generation failed, using fallback: $e');
       return _getMockSummary(resume);
     }
   }
@@ -75,7 +76,7 @@ Output JSON murni (tanpa markdown) format:
         generatedAt: DateTime.now(),
       );
     } catch (e) {
-      print('AI Analysis failed, using fallback: $e');
+      debugPrint('AI Analysis failed, using fallback: $e');
       return _getMockAnalysis(resume);
     }
   }
@@ -103,7 +104,7 @@ Buat summary portfolio pendek (2 kalimat) untuk project: ${portfolio.title}
       // Append ?model=openai (optional, defaults to openai compatible) or ?seed=...
       final url = Uri.parse('$_baseUrl$encodedPrompt?model=openai');
 
-      print('DEBUG: Calling Pollinations AI: $url');
+      debugPrint('DEBUG: Calling Pollinations AI: $url');
 
       final response = await http.get(url).timeout(const Duration(seconds: 15));
 
@@ -144,12 +145,15 @@ Buat summary portfolio pendek (2 kalimat) untuk project: ${portfolio.title}
   AIAnalysisModel _getMockAnalysis(ResumeModel resume) {
     // Basic analysis based on local data
     List<String> strengths = [];
-    if (resume.skills.length > 5)
+    if (resume.skills.length > 5) {
       strengths.add("Memiliki set skill yang beragam");
-    if (resume.experience.length > 2)
+    }
+    if (resume.experience.length > 2) {
       strengths.add("Pengalaman kerja yang solid");
-    if (resume.education.isNotEmpty)
+    }
+    if (resume.education.isNotEmpty) {
       strengths.add("Latar belakang pendidikan formal");
+    }
     if (strengths.isEmpty) strengths.add("Semangat belajar yang tinggi");
 
     return AIAnalysisModel(

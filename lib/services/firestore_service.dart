@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import '../models/resume_model.dart';
 import '../models/portfolio_model.dart';
 
@@ -33,27 +34,29 @@ class FirestoreService {
   // Get all resumes for a user
   Future<List<ResumeModel>> getUserResumes(String uid) async {
     try {
-      print('DEBUG: Querying resumes for uid: $uid');
+      debugPrint('DEBUG: Querying resumes for uid: $uid');
 
       final querySnapshot = await _firestore
           .collection('resumes')
           .where('uid', isEqualTo: uid)
           .get();
 
-      print('DEBUG: Found ${querySnapshot.docs.length} resumes');
+      debugPrint('DEBUG: Found ${querySnapshot.docs.length} resumes');
 
       final resumes = querySnapshot.docs.map((doc) {
-        print('DEBUG: Resume doc id: ${doc.id}, uid: ${doc.data()['uid']}');
+        debugPrint(
+          'DEBUG: Resume doc id: ${doc.id}, uid: ${doc.data()['uid']}',
+        );
         return ResumeModel.fromMap({...doc.data(), 'id': doc.id});
       }).toList();
 
       // Sort in memory to avoid Firestore composite index requirement
       resumes.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-      print('DEBUG: Parsed ${resumes.length} resumes');
+      debugPrint('DEBUG: Parsed ${resumes.length} resumes');
       return resumes;
     } catch (e) {
-      print('DEBUG: Error getting resumes: $e');
+      debugPrint('DEBUG: Error getting resumes: $e');
       throw Exception('Gagal mengambil daftar resume: $e');
     }
   }

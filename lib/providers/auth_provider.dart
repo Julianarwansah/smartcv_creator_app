@@ -54,7 +54,9 @@ class AuthProvider with ChangeNotifier {
           updatedAt: DateTime.now(),
         );
 
-        print('DEBUG: Creating user document with name: $userName');
+        debugPrint('DEBUG: Creating user document with name: $userName');
+...
+        debugPrint('DEBUG: Updating user document with name: $userName');
         await _authService.createUserDocument(newUserModel);
         _userModel = newUserModel;
       }

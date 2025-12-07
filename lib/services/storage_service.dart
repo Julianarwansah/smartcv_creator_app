@@ -132,11 +132,7 @@ class StorageService {
   Future<List<File>> getFilesInFolder(String folder) async {
     try {
       final directory = await _createDirectory(folder);
-      final files = directory
-          .listSync()
-          .where((item) => item is File)
-          .map((item) => item as File)
-          .toList();
+      final files = directory.listSync().whereType<File>().toList();
       return files;
     } catch (e) {
       throw Exception('Gagal mengambil daftar file: $e');

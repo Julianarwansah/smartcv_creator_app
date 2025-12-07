@@ -264,7 +264,7 @@ class PDFService {
                 ),
               ),
               padding: const pw.EdgeInsets.only(bottom: 10),
-              margin: const pw.EdgeInsets.bottom(20),
+              margin: const pw.EdgeInsets.only(bottom: 20),
               child: pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: pw.CrossAxisAlignment.end,
@@ -354,7 +354,7 @@ class PDFService {
                             ),
                             pw.Text(
                               '${exp.company}, ${exp.location}',
-                              style: const pw.TextStyle(
+                              style: pw.TextStyle(
                                 fontSize: 11,
                                 fontStyle: pw.FontStyle.italic,
                               ),
