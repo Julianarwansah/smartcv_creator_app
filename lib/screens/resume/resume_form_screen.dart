@@ -12,7 +12,9 @@ import '../../providers/resume_provider.dart';
 import 'resume_preview_screen.dart';
 
 class ResumeFormScreen extends StatefulWidget {
-  const ResumeFormScreen({super.key});
+  final ResumeModel? initialData;
+
+  const ResumeFormScreen({super.key, this.initialData});
 
   @override
   State<ResumeFormScreen> createState() => _ResumeFormScreenState();
@@ -23,6 +25,7 @@ class _ResumeFormScreenState extends State<ResumeFormScreen> {
   final _pageController = PageController();
   int _currentPage = 0;
   bool _isSaving = false;
+  bool _isEditing = false;
 
   // Personal Info Controllers
   final _nameController = TextEditingController();
@@ -123,34 +126,79 @@ class _ResumeFormScreenState extends State<ResumeFormScreen> {
         github: _githubController.text.isEmpty ? null : _githubController.text,
       );
 
-      final resume = ResumeModel(
-        id: const Uuid().v4(),
-        uid: authProvider.currentUser!.uid,
-        personalInfo: personalInfo,
-        education: _educations,
-        experience: _experiences,
-        skills: _skills,
-        languages: _languages,
-        certificates: _certificates,
-        personalSummary: _summaryController.text.isEmpty
-            ? null
-            : _summaryController.text,
-        templateId: 'minimalist',
-        createdAt: DateTime.now(),
-      );
+      // Create new resume or update existing one
+      ResumeModel resume;
 
-      final resumeId = await resumeProvider.createResume(resume);
+      if (_isEditing && widget.initialData != null) {
+        // Update existing resume
+        resume = widget.initialData!.copyWith(
+          personalInfo: personalInfo,
+          education: _educations,
+          experience: _experiences,
+          skills: _skills,
+          languages: _languages,
+          certificates: _certificates,
+          personalSummary: _summaryController.text.isEmpty
+              ? null
+              : _summaryController.text,
+          updatedAt: DateTime.now(),
+        );
 
-      if (mounted) {
-        if (resumeId != null) {
+        await resumeProvider.updateResume(resume);
+
+        if (mounted) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => ResumePreviewScreen(resumeId: resumeId),
+              builder: (context) => ResumePreviewScreen(resumeId: resume.id),
             ),
           );
-        } else {
-          throw Exception('Gagal menyimpan CV');
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('CV berhasil diperbarui!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        // Create new resume
+        resume = ResumeModel(
+          id: const Uuid().v4(),
+          uid: authProvider.currentUser!.uid,
+          personalInfo: personalInfo,
+          education: _educations,
+          experience: _experiences,
+          skills: _skills,
+          languages: _languages,
+          certificates: _certificates,
+          personalSummary: _summaryController.text.isEmpty
+              ? null
+              : _summaryController.text,
+          templateId: 'minimalist',
+          createdAt: DateTime.now(),
+        );
+
+        final resumeId = await resumeProvider.createResume(resume);
+
+        if (mounted) {
+          if (resumeId != null) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ResumePreviewScreen(resumeId: resumeId),
+              ),
+            );
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('CV berhasil dibuat!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          } else {
+            throw Exception('Gagal menyimpan CV');
+          }
         }
       }
     } catch (e) {
@@ -172,10 +220,44 @@ class _ResumeFormScreenState extends State<ResumeFormScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.initialData != null) {
+      _isEditing = true;
+      _loadInitialData();
+    }
+  }
+
+  void _loadInitialData() {
+    final data = widget.initialData!;
+
+    // Personal Info
+    _nameController.text = data.personalInfo.name;
+    _emailController.text = data.personalInfo.email;
+    _phoneController.text = data.personalInfo.phone;
+    _addressController.text = data.personalInfo.address;
+    _cityController.text = data.personalInfo.city ?? '';
+    _countryController.text = data.personalInfo.country ?? '';
+    _websiteController.text = data.personalInfo.website ?? '';
+    _linkedinController.text = data.personalInfo.linkedin ?? '';
+    _githubController.text = data.personalInfo.github ?? '';
+    _summaryController.text = data.personalSummary ?? '';
+
+    // Lists
+    setState(() {
+      _educations = List.from(data.education);
+      _experiences = List.from(data.experience);
+      _skills = List.from(data.skills);
+      _languages = List.from(data.languages);
+      _certificates = List.from(data.certificates);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Buat CV Baru'),
+        title: Text(_isEditing ? 'Edit CV' : 'Buat CV Baru'),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(4),
           child: LinearProgressIndicator(

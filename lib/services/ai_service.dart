@@ -56,7 +56,7 @@ Skills: ${resume.skills.map((s) => s.name).join(', ')}
 Pengalaman: ${resume.experience.map((e) => '${e.position} at ${e.company}').join(', ')}
 Pendidikan: ${resume.education.map((e) => '${e.degree} in ${e.fieldOfStudy}').join(', ')}
 
-Format response sebagai JSON dengan struktur:
+Format response JUDULNYA LANGSUNG JSON VALID tanpa markdown code blocks (```json), tanpa text tambahan sebelum/sesudah JSON. Struktur:
 {
   "strengths": ["strength1", "strength2", ...],
   "weaknesses": ["weakness1", "weakness2", ...],
@@ -64,13 +64,22 @@ Format response sebagai JSON dengan struktur:
 }
 ''';
 
+    print('DEBUG: Sending prompt to AI: $prompt');
     final response = await _generateText(prompt);
+    print('DEBUG: Received AI response: $response');
 
     try {
-      // Extract JSON from response
-      final jsonStart = response.indexOf('{');
-      final jsonEnd = response.lastIndexOf('}') + 1;
-      final jsonString = response.substring(jsonStart, jsonEnd);
+      // Clean up response if it contains markdown code blocks
+      String jsonString = response;
+      if (response.contains('```json')) {
+        jsonString = response.split('```json')[1].split('```')[0];
+      } else if (response.contains('```')) {
+        jsonString = response.split('```')[1].split('```')[0];
+      }
+
+      jsonString = jsonString.trim();
+      print('DEBUG: Parsing JSON: $jsonString');
+
       final data = json.decode(jsonString);
 
       return AIAnalysisModel(
@@ -81,15 +90,13 @@ Format response sebagai JSON dengan struktur:
         generatedAt: DateTime.now(),
       );
     } catch (e) {
+      print('DEBUG: Error parsing AI analysis JSON: $e');
       // Fallback if JSON parsing fails
       return AIAnalysisModel(
         summaryAi: await generateProfessionalSummary(resume),
-        strengthsAi: ['Good communication skills', 'Fast learner'],
-        weaknessesAi: ['Perlu lebih banyak pengalaman'],
-        improvementAi: [
-          'Ambil sertifikasi profesional',
-          'Perbanyak project portfolio',
-        ],
+        strengthsAi: ['Analisis manual diperlukan'],
+        weaknessesAi: ['Gagal memproses detail analisis otomatis'],
+        improvementAi: ['Silakan refresh atau coba lagi nanti'],
         generatedAt: DateTime.now(),
       );
     }
@@ -97,6 +104,7 @@ Format response sebagai JSON dengan struktur:
 
   // Generate portfolio summary
   Future<String> generatePortfolioSummary(PortfolioModel portfolio) async {
+    // ... existing implementation ...
     final prompt =
         '''
 Buatkan summary profesional untuk portfolio berikut:
@@ -115,8 +123,11 @@ Buatkan summary yang menarik dan profesional dalam 2-3 kalimat.
   // Private method to call Gemini API
   Future<String> _generateText(String prompt) async {
     try {
+      print('DEBUG: Calling Gemini API...');
+      final url = Uri.parse('$_baseUrl?key=$_apiKey');
+      print('DEBUG: Request URL: $url');
       final response = await http.post(
-        Uri.parse('$_baseUrl?key=$_apiKey'),
+        url,
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'contents': [
@@ -135,13 +146,26 @@ Buatkan summary yang menarik dan profesional dalam 2-3 kalimat.
         }),
       );
 
+      print('DEBUG: API Response Status: ${response.statusCode}');
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return data['candidates'][0]['content']['parts'][0]['text'];
+        if (data['candidates'] != null &&
+            data['candidates'].isNotEmpty &&
+            data['candidates'][0]['content'] != null &&
+            data['candidates'][0]['content']['parts'] != null &&
+            data['candidates'][0]['content']['parts'].isNotEmpty) {
+          return data['candidates'][0]['content']['parts'][0]['text'];
+        } else {
+          print('DEBUG: Unexpected API response structure: ${response.body}');
+          throw Exception('Empty response candidates');
+        }
       } else {
-        throw Exception('API Error: ${response.statusCode}');
+        print('DEBUG: API Error Body: ${response.body}');
+        throw Exception('API Error: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
+      print('DEBUG: Exception in _generateText: $e');
       throw Exception('Gagal generate AI content: $e');
     }
   }

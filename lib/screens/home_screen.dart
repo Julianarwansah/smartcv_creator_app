@@ -4,6 +4,7 @@ import '../providers/auth_provider.dart';
 import '../providers/resume_provider.dart';
 import '../providers/portfolio_provider.dart';
 import 'resume/resume_form_screen.dart';
+import 'resume/resume_preview_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -242,7 +243,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             size: 16,
                           ),
                           onTap: () {
-                            // TODO: Navigate to resume detail
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    ResumePreviewScreen(resumeId: resume.id),
+                              ),
+                            );
                           },
                         ),
                       );

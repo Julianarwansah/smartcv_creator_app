@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../providers/resume_provider.dart';
 import '../../services/pdf_service.dart';
+import 'resume_form_screen.dart';
 import '../home_screen.dart';
 
 class ResumePreviewScreen extends StatefulWidget {
@@ -110,6 +111,30 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Preview CV'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ResumeFormScreen(
+                    initialData: Provider.of<ResumeProvider>(
+                      context,
+                      listen: false,
+                    ).currentResume,
+                  ),
+                ),
+              );
+            },
+            tooltip: 'Edit CV',
+          ),
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            onPressed: _isGeneratingPDF ? null : _downloadPDF,
+            tooltip: 'Download PDF',
+          ),
+        ],
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
