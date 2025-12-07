@@ -1,243 +1,138 @@
 # SmartCV Creator App 🎯
 
-Aplikasi pembuat CV otomatis dengan AI analisis skill, template PDF, dan penyimpanan cloud menggunakan Flutter + Firebase + AI.
+Aplikasi pembuat CV otomatis dengan AI analisis skill, template PDF profesional, dan penyimpanan cloud menggunakan Flutter + Firebase + AI.
 
 ## ✨ Fitur Utama
 
-### 1. Input Data Lengkap
-- Data pribadi (nama, email, telepon, alamat, dll)
-- Pendidikan
-- Pengalaman kerja
-- Keahlian (skills)
-- Bahasa
-- Sertifikat
-- Portfolio links
-- Ringkasan diri
+### 1. 🤖 AI Powered (Pollinations.ai)
+- **Professional Summary**: Membuat ringkasan diri yang menarik secara otomatis.
+- **Experience Formatter**: Mengubah deskripsi pekerjaan menjadi bullet points yang profesional.
+- **Skill Analysis**: Menganalisis kelebihan (Strengths) dan kekurangan (Weaknesses) serta memberikan saran perbaikan.
+- **Portfolio Summary**: Menghasilkan deskripsi singkat untuk project portfolio.
 
-### 2. AI Resume Generator
-AI akan membantu:
-- Membuat ringkasan profesional (Professional Summary)
-- Memformat pengalaman kerja jadi lebih menarik
-- Mengubah bahasa menjadi profesional/ATS-friendly
-- Menyusun layout berdasarkan template yang dipilih
+### 2. 📄 Multi-Template PDF Generator
+Tersedia 3 pilihan template utama:
+- **Minimalist**: Desain bersih dan sederhana, fokus pada konten.
+- **Professional**: Tampilan korporat dengan header formal dan pemisah yang jelas.
+- **Creative**: Layout modern dengan sidebar gelap untuk menonjolkan profil visual.
+- *(Experimental)*: ATS-Friendly & Dark Elegant (Fallback ke template standar).
 
-### 3. Template CV (5 Pilihan)
-- Minimalist Template
-- Professional Corporate
-- Creative Template
-- ATS-Friendly Template
-- Dark Mode Elegant Template
+### 3. 📝 Comprehensive Resume Builder
+- **Data Lengkap**: Informasi Pribadi, Pendidikan, Pengalaman, Skill, Bahasa, dan Sertifikat.
+- **Real-time Preview**: Lihat perubahan CV anda sebelum di-generate.
+- **Auto-Formatting**: Tanggal dan layout diatur otomatis.
 
-### 4. AI Skill Assessment
-AI memberikan:
-- **Kelebihan (Strengths)**: Analisis kekuatan Anda
-- **Kekurangan (Weaknesses)**: Area yang perlu ditingkatkan
-- **Rekomendasi Perbaikan**: Saran kursus, sertifikasi, dan skill yang relevan
+### 4. ☁️ Cloud Sync & Storage
+- Terintegrasi penuh dengan **Firebase Firestore**.
+- Riwayat CV tersimpan aman di cloud, bisa diakses dan diedit dari perangkat mana saja.
+- Manajemen file PDF yang dihasilkan.
 
-### 5. Cloud Sync & History
-- Semua data tersimpan di Cloud Firestore
-- Riwayat CV yang pernah dibuat
-- Edit ulang sewaktu-waktu
-- PDF tersimpan di Firebase Storage
-
-### 6. Portfolio Creator
-- Upload foto/banner
-- Menambahkan project
-- Link GitHub, LinkedIn, Website
-- Auto-generate portfolio dalam format PDF
-
-### 7. Download & Share
-- Download PDF
-- Share ke WhatsApp/Email
-- Simpan ke Google Drive
+---
 
 ## 🚀 Tech Stack
 
-- **Frontend**: Flutter 3+
+- **Frontend**: Flutter 3.9+
+- **Backend**: Firebase (Authentication, Firestore, Storage)
+- **AI Engine**: Pollinations.ai (Keyless AI Proxy for OpenAI/Mistral)
+- **PDF Engine**: `pdf` & `printing` packages
 - **State Management**: Provider
-- **Backend**: Firebase (Auth, Firestore, Storage)
-- **AI**: Google Gemini API
-- **PDF Generation**: pdf package
-- **Fonts**: Google Fonts
+
+---
 
 ## 📋 Prerequisites
 
 - Flutter SDK 3.9.2 atau lebih baru
-- Dart SDK
-- Android Studio / VS Code
 - Firebase Account
-- Gemini API Key (gratis dari Google AI Studio)
+- Koneksi Internet (untuk AI & Firebase)
+
+---
 
 ## 🔧 Setup Instructions
 
 ### 1. Clone Repository
-
-\`\`\`bash
+```bash
 git clone https://github.com/Julianarwansah/smartcv_creator_app.git
 cd smartcv_creator_app
-\`\`\`
+```
 
 ### 2. Install Dependencies
-
-\`\`\`bash
+```bash
 flutter pub get
-\`\`\`
+```
 
-### 3. Firebase Setup
+### 3. Firebase Configuration
+1. Buka [Firebase Console](https://console.firebase.google.com).
+2. Buat project baru.
+3. Tambahkan aplikasi Android dengan package name: `com.example.smartcv_creator_app`.
+4. Download `google-services.json` dan letakkan di folder:
+   `android/app/google-services.json`
+5. Aktifkan layanan berikut di Firebase Console:
+   - **Authentication**: Enable Email/Password provider.
+   - **Firestore Database**: Create database (Start in test mode).
+   - **Storage**: Enable storage (Start in test mode).
 
-#### A. Buat Firebase Project
-1. Buka [Firebase Console](https://console.firebase.google.com)
-2. Klik "Create a project" atau gunakan project yang sudah ada
-3. Ikuti wizard setup
-
-#### B. Setup Android App
-1. Di Firebase Console, klik ikon Android
-2. Masukkan package name: `com.example.smartcv_creator_app`
-3. Download file `google-services.json`
-4. Copy file tersebut ke folder `android/app/`
-
-#### C. Enable Firebase Services
-1. **Authentication**:
-   - Buka Authentication > Sign-in method
-   - Enable "Email/Password"
-
-2. **Firestore Database**:
-   - Buka Firestore Database
-   - Klik "Create database"
-   - Pilih "Start in test mode" (untuk development)
-   - Pilih location terdekat
-
-3. **Storage**:
-   - Buka Storage
-   - Klik "Get started"
-   - Pilih "Start in test mode" (untuk development)
-
-### 4. Setup Gemini API
-
-1. Buka [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Klik "Get API Key"
-3. Copy API key yang didapat
-4. Buka file `lib/services/ai_service.dart`
-5. Replace `YOUR_GEMINI_API_KEY_HERE` dengan API key Anda:
-
-\`\`\`dart
-static const String _apiKey = 'YOUR_ACTUAL_API_KEY_HERE';
-\`\`\`
+### 4. AI Configuration
+Aplikasi ini menggunakan **Pollinations.ai** yang bersifat **gratis dan tanpa API Key** untuk keperluan development/testing. Anda tidak perlu melakukan konfigurasi API Key manual.
 
 ### 5. Run Application
-
-\`\`\`bash
+```bash
 flutter run
-\`\`\`
-
-## 📱 Struktur Project
-
-\`\`\`
-lib/
-├── models/              # Data models
-│   ├── user_model.dart
-│   ├── resume_model.dart
-│   ├── portfolio_model.dart
-│   └── ...
-├── services/            # Business logic & API calls
-│   ├── firebase_service.dart
-│   ├── auth_service.dart
-│   ├── firestore_service.dart
-│   ├── storage_service.dart
-│   └── ai_service.dart
-├── providers/           # State management
-│   ├── auth_provider.dart
-│   ├── resume_provider.dart
-│   └── portfolio_provider.dart
-├── screens/             # UI screens
-│   ├── auth/
-│   ├── resume/
-│   ├── portfolio/
-│   └── settings/
-├── widgets/             # Reusable widgets
-│   ├── forms/
-│   └── common/
-├── templates/           # PDF templates
-├── utils/               # Helper functions
-└── main.dart
-\`\`\`
-
-## 🔥 Firestore Structure
-
-\`\`\`
-users/{uid}
-  - name
-  - email
-  - phone
-  - created_at
-  - updated_at
-
-resumes/{resume_id}
-  - uid
-  - personal_info
-  - education[]
-  - experience[]
-  - skills[]
-  - languages[]
-  - certificates[]
-  - portfolio_links[]
-  - summary_ai
-  - strengths_ai[]
-  - weaknesses_ai[]
-  - improvement_ai[]
-  - template_id
-  - pdf_url
-  - created_at
-
-portfolios/{portfolio_id}
-  - uid
-  - projects[]
-  - description
-  - tags
-  - ai_summary
-  - created_at
-\`\`\`
-
-## 🎨 Features Roadmap
-
-### Phase 1 - Basic ✅
-- [x] Form input data
-- [x] Simpan ke Firestore
-- [x] Authentication
-- [x] State management
-
-### Phase 2 - Intermediate 🚧
-- [ ] Integrasi AI untuk summary
-- [ ] Template PDF multiple
-- [ ] Halaman riwayat
-- [ ] Resume form screens
-
-### Phase 3 - Advanced 📅
-- [ ] AI skill analysis
-- [ ] AI improvement feedback
-- [ ] Portfolio generator
-- [ ] Template customizer
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 👨‍💻 Author
-
-**Julian Arwansah**
-- GitHub: [@Julianarwansah](https://github.com/Julianarwansah)
-
-## 🙏 Acknowledgments
-
-- Flutter Team
-- Firebase Team
-- Google Gemini AI Team
-- All contributors and supporters
+```
 
 ---
 
+## 📱 Project Structure
+
+```
+lib/
+├── models/              # Data Models (Resume, User, AI Analysis)
+├── services/
+│   ├── ai_service.dart  # Integrasi Pollinations.ai
+│   ├── pdf_service.dart # Generator PDF (pw.Document)
+│   ├── firebase_*.dart  # Layanan Firebase
+│   └── ...
+├── providers/           # State Management (Auth, Resume Provider)
+├── screens/
+│   ├── auth/            # Login/Register
+│   ├── resume/          # Form Input & Preview
+│   └── ...
+├── widgets/             # Reusable UI Components
+└── main.dart            # App Entry Point
+```
+
+---
+
+## 🎨 Features Roadmap
+
+### Phase 1 - Foundation ✅
+- [x] Form Input Data Lengkap
+- [x] Firebase Authentication (Login/Register)
+- [x] Firestore CRUD (Simpan & Edit CV)
+- [x] State Management Base
+
+### Phase 2 - Intelligence & Core Features ✅
+- [x] AI Professional Summary Generator
+- [x] AI Skill & Weakness Analysis
+- [x] Generate PDF (Minimalist, Professional, Creative)
+- [x] Experience Text Formatter
+
+### Phase 3 - Polish & Advanced 🚧
+- [ ] Portfolio Builder (Partial)
+- [ ] Dark Mode UI Support
+- [ ] Share & Export Options (Direct WhatsApp/Email)
+- [ ] Custom Color Themes for PDF
+
+---
+
+## 🤝 Contributing
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+This project is licensed under the MIT License.
+
+## 👨‍💻 Author
+**Julian Arwansah**
+- GitHub: [@Julianarwansah](https://github.com/Julianarwansah)
+
+---
 Made with ❤️ using Flutter
