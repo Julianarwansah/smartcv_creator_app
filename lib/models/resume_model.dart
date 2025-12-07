@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'personal_info_model.dart';
 import 'education_model.dart';
 import 'experience_model.dart';
@@ -55,8 +56,8 @@ class ResumeModel {
       'ai_analysis': aiAnalysis?.toMap(),
       'template_id': templateId,
       'pdf_url': pdfUrl,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt?.toIso8601String(),
+      'created_at': Timestamp.fromDate(createdAt),
+      'updated_at': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
     };
   }
 
@@ -93,9 +94,13 @@ class ResumeModel {
           : null,
       templateId: map['template_id'] ?? 'minimalist',
       pdfUrl: map['pdf_url'],
-      createdAt: DateTime.parse(map['created_at']),
+      createdAt: map['created_at'] is Timestamp
+          ? (map['created_at'] as Timestamp).toDate()
+          : DateTime.parse(map['created_at']),
       updatedAt: map['updated_at'] != null
-          ? DateTime.parse(map['updated_at'])
+          ? (map['updated_at'] is Timestamp
+                ? (map['updated_at'] as Timestamp).toDate()
+                : DateTime.parse(map['updated_at']))
           : null,
     );
   }

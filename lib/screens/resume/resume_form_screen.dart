@@ -22,6 +22,7 @@ class _ResumeFormScreenState extends State<ResumeFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _pageController = PageController();
   int _currentPage = 0;
+  bool _isSaving = false;
 
   // Personal Info Controllers
   final _nameController = TextEditingController();
@@ -77,52 +78,96 @@ class _ResumeFormScreenState extends State<ResumeFormScreen> {
   }
 
   Future<void> _saveResume() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Mohon lengkapi data pribadi yang wajib diisi'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final resumeProvider = Provider.of<ResumeProvider>(context, listen: false);
+    setState(() {
+      _isSaving = true;
+    });
 
-    if (authProvider.currentUser == null) return;
-
-    final personalInfo = PersonalInfoModel(
-      name: _nameController.text,
-      email: _emailController.text,
-      phone: _phoneController.text,
-      address: _addressController.text,
-      city: _cityController.text.isEmpty ? null : _cityController.text,
-      country: _countryController.text.isEmpty ? null : _countryController.text,
-      website: _websiteController.text.isEmpty ? null : _websiteController.text,
-      linkedin: _linkedinController.text.isEmpty
-          ? null
-          : _linkedinController.text,
-      github: _githubController.text.isEmpty ? null : _githubController.text,
-    );
-
-    final resume = ResumeModel(
-      id: const Uuid().v4(),
-      uid: authProvider.currentUser!.uid,
-      personalInfo: personalInfo,
-      education: _educations,
-      experience: _experiences,
-      skills: _skills,
-      languages: _languages,
-      certificates: _certificates,
-      personalSummary: _summaryController.text.isEmpty
-          ? null
-          : _summaryController.text,
-      templateId: 'minimalist',
-      createdAt: DateTime.now(),
-    );
-
-    final resumeId = await resumeProvider.createResume(resume);
-
-    if (mounted && resumeId != null) {
-      Navigator.pushReplacement(
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final resumeProvider = Provider.of<ResumeProvider>(
         context,
-        MaterialPageRoute(
-          builder: (context) => ResumePreviewScreen(resumeId: resumeId),
-        ),
+        listen: false,
       );
+
+      if (authProvider.currentUser == null) {
+        throw Exception('User tidak terautentikasi');
+      }
+
+      final personalInfo = PersonalInfoModel(
+        name: _nameController.text,
+        email: _emailController.text,
+        phone: _phoneController.text,
+        address: _addressController.text,
+        city: _cityController.text.isEmpty ? null : _cityController.text,
+        country: _countryController.text.isEmpty
+            ? null
+            : _countryController.text,
+        website: _websiteController.text.isEmpty
+            ? null
+            : _websiteController.text,
+        linkedin: _linkedinController.text.isEmpty
+            ? null
+            : _linkedinController.text,
+        github: _githubController.text.isEmpty ? null : _githubController.text,
+      );
+
+      final resume = ResumeModel(
+        id: const Uuid().v4(),
+        uid: authProvider.currentUser!.uid,
+        personalInfo: personalInfo,
+        education: _educations,
+        experience: _experiences,
+        skills: _skills,
+        languages: _languages,
+        certificates: _certificates,
+        personalSummary: _summaryController.text.isEmpty
+            ? null
+            : _summaryController.text,
+        templateId: 'minimalist',
+        createdAt: DateTime.now(),
+      );
+
+      final resumeId = await resumeProvider.createResume(resume);
+
+      if (mounted) {
+        if (resumeId != null) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ResumePreviewScreen(resumeId: resumeId),
+            ),
+          );
+        } else {
+          throw Exception('Gagal menyimpan CV');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
     }
   }
 
@@ -174,14 +219,27 @@ class _ResumeFormScreenState extends State<ResumeFormScreen> {
               if (_currentPage > 0) const SizedBox(width: 16),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: _currentPage == 5 ? _saveResume : _nextPage,
+                  onPressed: _isSaving
+                      ? null
+                      : (_currentPage == 5 ? _saveResume : _nextPage),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,
                   ),
-                  child: Text(
-                    _currentPage == 5 ? 'Simpan & Lanjut' : 'Selanjutnya',
-                  ),
+                  child: _isSaving
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : Text(
+                          _currentPage == 5 ? 'Simpan & Lanjut' : 'Selanjutnya',
+                        ),
                 ),
               ),
             ],

@@ -67,21 +67,20 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
     });
 
     final resumeProvider = Provider.of<ResumeProvider>(context, listen: false);
-    
+
     if (resumeProvider.currentResume != null) {
       try {
         final pdfFile = await _pdfService.generateResumePDF(
           resumeProvider.currentResume!,
           resumeProvider.currentResume!.templateId,
         );
-        
+
         if (mounted) {
           // Share PDF file
-          await Share.shareXFiles(
-            [XFile(pdfFile.path)],
-            subject: 'CV ${resumeProvider.currentResume!.personalInfo.name}',
-          );
-          
+          await Share.shareXFiles([
+            XFile(pdfFile.path),
+          ], subject: 'CV ${resumeProvider.currentResume!.personalInfo.name}');
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('PDF berhasil dibuat!'),
@@ -445,6 +444,33 @@ class _ResumePreviewScreenState extends State<ResumePreviewScreen> {
                 ],
 
                 const SizedBox(height: 32),
+
+                // Action Buttons
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _isGeneratingPDF ? null : _downloadPDF,
+                    icon: _isGeneratingPDF
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.download),
+                    label: Text(
+                      _isGeneratingPDF
+                          ? 'Membuat PDF...'
+                          : 'Download & Share PDF',
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.all(16),
+                    ),
+                  ),
                 ),
               ],
             ),
