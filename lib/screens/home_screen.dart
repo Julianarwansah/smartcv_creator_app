@@ -6,6 +6,7 @@ import '../providers/portfolio_provider.dart';
 import 'resume/resume_form_screen.dart';
 import 'resume/resume_preview_screen.dart';
 import 'profile/profile_screen.dart';
+import 'templates/template_gallery_screen.dart';
 import '../widgets/cv_template_card.dart';
 import '../data/cv_template_data.dart';
 
@@ -207,9 +208,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   TextButton(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Lihat semua template 📋'),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const TemplateGalleryScreen(),
                         ),
                       );
                     },
