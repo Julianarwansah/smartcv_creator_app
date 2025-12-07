@@ -235,12 +235,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: CVTemplateCard(
                         template: template,
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Template ${template.name} dipilih! 🎨',
-                              ),
-                              backgroundColor: Colors.green,
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const TemplateSelectionScreen(),
                             ),
                           );
                         },

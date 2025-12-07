@@ -30,6 +30,9 @@ class PDFService {
     final pdf = pw.Document();
 
     switch (templateId) {
+      case 'modern':
+        _buildModernTemplate(pdf, resume);
+        break;
       case 'minimalist':
         _buildMinimalistTemplate(pdf, resume);
         break;
@@ -60,6 +63,264 @@ class PDFService {
     }
 
     return File('${pdfDir.path}/resume_$resumeId.pdf');
+  }
+
+  // Modern Template (Gradient Header + Clean Layout)
+  void _buildModernTemplate(pw.Document pdf, ResumeModel resume) {
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(40),
+        build: (context) {
+          return [
+            // Modern Header with Gradient Effect (simulated with color)
+            pw.Container(
+              padding: const pw.EdgeInsets.all(20),
+              decoration: const pw.BoxDecoration(
+                color: PdfColors.blue700,
+                borderRadius: pw.BorderRadius.all(pw.Radius.circular(8)),
+              ),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                    resume.personalInfo.name,
+                    style: pw.TextStyle(
+                      fontSize: 28,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.white,
+                    ),
+                  ),
+                  pw.SizedBox(height: 4),
+                  pw.Text(
+                    resume.experience.isNotEmpty
+                        ? resume.experience.first.position
+                        : 'Professional',
+                    style: const pw.TextStyle(
+                      fontSize: 14,
+                      color: PdfColors.blue100,
+                    ),
+                  ),
+                  pw.SizedBox(height: 12),
+                  pw.Row(
+                    children: [
+                      pw.Text(
+                        '📧 ${resume.personalInfo.email}',
+                        style: const pw.TextStyle(
+                          fontSize: 10,
+                          color: PdfColors.white,
+                        ),
+                      ),
+                      pw.SizedBox(width: 20),
+                      pw.Text(
+                        '📱 ${resume.personalInfo.phone}',
+                        style: const pw.TextStyle(
+                          fontSize: 10,
+                          color: PdfColors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            pw.SizedBox(height: 20),
+
+            // Summary
+            if (resume.aiAnalysis?.summaryAi != null) ...[
+              _buildModernSection('ABOUT ME', [
+                pw.Text(
+                  resume.aiAnalysis!.summaryAi,
+                  style: const pw.TextStyle(fontSize: 11),
+                  textAlign: pw.TextAlign.justify,
+                ),
+              ]),
+            ],
+
+            // Experience
+            if (resume.experience.isNotEmpty) ...[
+              pw.SizedBox(height: 16),
+              _buildModernSection(
+                'WORK EXPERIENCE',
+                resume.experience.map((exp) {
+                  return pw.Container(
+                    margin: const pw.EdgeInsets.only(bottom: 12),
+                    padding: const pw.EdgeInsets.all(12),
+                    decoration: pw.BoxDecoration(
+                      color: PdfColors.grey100,
+                      borderRadius: const pw.BorderRadius.all(
+                        pw.Radius.circular(6),
+                      ),
+                    ),
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Row(
+                          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                          children: [
+                            pw.Text(
+                              exp.position,
+                              style: pw.TextStyle(
+                                fontSize: 13,
+                                fontWeight: pw.FontWeight.bold,
+                                color: PdfColors.blue700,
+                              ),
+                            ),
+                            pw.Text(
+                              '${exp.startDate} - ${exp.endDate ?? "Present"}',
+                              style: const pw.TextStyle(
+                                fontSize: 10,
+                                color: PdfColors.grey700,
+                              ),
+                            ),
+                          ],
+                        ),
+                        pw.SizedBox(height: 4),
+                        pw.Text(
+                          '${exp.company} • ${exp.location}',
+                          style: const pw.TextStyle(
+                            fontSize: 11,
+                            color: PdfColors.grey600,
+                          ),
+                        ),
+                        if (exp.description.isNotEmpty) ...[
+                          pw.SizedBox(height: 6),
+                          pw.Text(
+                            exp.description,
+                            style: const pw.TextStyle(fontSize: 10),
+                          ),
+                        ],
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+
+            // Education
+            if (resume.education.isNotEmpty) ...[
+              pw.SizedBox(height: 16),
+              _buildModernSection(
+                'EDUCATION',
+                resume.education.map((edu) {
+                  return pw.Container(
+                    margin: const pw.EdgeInsets.only(bottom: 8),
+                    child: pw.Row(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Container(
+                          width: 4,
+                          height: 40,
+                          color: PdfColors.blue700,
+                        ),
+                        pw.SizedBox(width: 12),
+                        pw.Expanded(
+                          child: pw.Column(
+                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                            children: [
+                              pw.Text(
+                                edu.degree,
+                                style: pw.TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: pw.FontWeight.bold,
+                                ),
+                              ),
+                              pw.Text(
+                                '${edu.institution} • ${edu.fieldOfStudy}',
+                                style: const pw.TextStyle(
+                                  fontSize: 11,
+                                  color: PdfColors.grey700,
+                                ),
+                              ),
+                              pw.Text(
+                                '${edu.startDate} - ${edu.endDate ?? "Present"}',
+                                style: const pw.TextStyle(
+                                  fontSize: 10,
+                                  color: PdfColors.grey600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+
+            // Skills
+            if (resume.skills.isNotEmpty) ...[
+              pw.SizedBox(height: 16),
+              _buildModernSection('SKILLS', [
+                pw.Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: resume.skills.map((skill) {
+                    return pw.Container(
+                      padding: const pw.EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: pw.BoxDecoration(
+                        color: PdfColors.blue50,
+                        border: pw.Border.all(color: PdfColors.blue700),
+                        borderRadius: const pw.BorderRadius.all(
+                          pw.Radius.circular(16),
+                        ),
+                      ),
+                      child: pw.Text(
+                        skill.name,
+                        style: const pw.TextStyle(
+                          fontSize: 10,
+                          color: PdfColors.blue700,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ]),
+            ],
+
+            // Languages
+            if (resume.languages.isNotEmpty) ...[
+              pw.SizedBox(height: 16),
+              _buildModernSection('LANGUAGES', [
+                pw.Text(
+                  resume.languages.join(' • '),
+                  style: const pw.TextStyle(fontSize: 11),
+                ),
+              ]),
+            ],
+          ];
+        },
+      ),
+    );
+  }
+
+  pw.Widget _buildModernSection(String title, List<pw.Widget> children) {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+          title,
+          style: pw.TextStyle(
+            fontSize: 14,
+            fontWeight: pw.FontWeight.bold,
+            color: PdfColors.blue700,
+            letterSpacing: 1,
+          ),
+        ),
+        pw.Container(
+          width: 40,
+          height: 3,
+          margin: const pw.EdgeInsets.only(top: 4, bottom: 12),
+          color: PdfColors.blue700,
+        ),
+        ...children,
+      ],
+    );
   }
 
   // Minimalist Template
