@@ -97,6 +97,15 @@ class AuthService {
     }
   }
 
+  // Create user document in Firestore
+  Future<void> createUserDocument(UserModel user) async {
+    try {
+      await _firestore.collection('users').doc(user.uid).set(user.toMap());
+    } catch (e) {
+      throw Exception('Gagal membuat data user: $e');
+    }
+  }
+
   // Update user data
   Future<void> updateUserData(UserModel user) async {
     try {

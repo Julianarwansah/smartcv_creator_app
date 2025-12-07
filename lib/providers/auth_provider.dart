@@ -36,6 +36,43 @@ class AuthProvider with ChangeNotifier {
   Future<void> _loadUserData(String uid) async {
     try {
       _userModel = await _authService.getUserData(uid);
+
+      // If user document doesn't exist, create it
+      if (_userModel == null && _currentUser != null) {
+        // Extract name from email if displayName is not available
+        String userName =
+            _currentUser!.displayName ??
+            _currentUser!.email?.split('@').first ??
+            'User';
+
+        final newUserModel = UserModel(
+          uid: uid,
+          name: userName,
+          email: _currentUser!.email ?? '',
+          phone: _currentUser!.phoneNumber,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+
+        print('DEBUG: Creating user document with name: $userName');
+        await _authService.createUserDocument(newUserModel);
+        _userModel = newUserModel;
+      }
+
+      // Update user document if name is empty
+      if (_userModel != null &&
+          (_userModel!.name.isEmpty || _userModel!.name == '')) {
+        String userName =
+            _currentUser!.displayName ??
+            _currentUser!.email?.split('@').first ??
+            'User';
+
+        final updatedUserModel = _userModel!.copyWith(name: userName);
+        print('DEBUG: Updating user document with name: $userName');
+        await _authService.updateUserData(updatedUserModel);
+        _userModel = updatedUserModel;
+      }
+
       notifyListeners();
     } catch (e) {
       debugPrint('Error loading user data: $e');

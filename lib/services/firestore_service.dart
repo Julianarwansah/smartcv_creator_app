@@ -33,16 +33,27 @@ class FirestoreService {
   // Get all resumes for a user
   Future<List<ResumeModel>> getUserResumes(String uid) async {
     try {
+      print('DEBUG: Querying resumes for uid: $uid');
+
       final querySnapshot = await _firestore
           .collection('resumes')
           .where('uid', isEqualTo: uid)
-          .orderBy('created_at', descending: true)
           .get();
 
-      return querySnapshot.docs
-          .map((doc) => ResumeModel.fromMap({...doc.data(), 'id': doc.id}))
-          .toList();
+      print('DEBUG: Found ${querySnapshot.docs.length} resumes');
+
+      final resumes = querySnapshot.docs.map((doc) {
+        print('DEBUG: Resume doc id: ${doc.id}, uid: ${doc.data()['uid']}');
+        return ResumeModel.fromMap({...doc.data(), 'id': doc.id});
+      }).toList();
+
+      // Sort in memory to avoid Firestore composite index requirement
+      resumes.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      print('DEBUG: Parsed ${resumes.length} resumes');
+      return resumes;
     } catch (e) {
+      print('DEBUG: Error getting resumes: $e');
       throw Exception('Gagal mengambil daftar resume: $e');
     }
   }

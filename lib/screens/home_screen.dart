@@ -75,10 +75,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               context,
                             ).colorScheme.primary,
                             child: Text(
-                              authProvider.userModel?.name
-                                      .substring(0, 1)
-                                      .toUpperCase() ??
-                                  'U',
+                              (authProvider.userModel?.name.isNotEmpty == true
+                                  ? authProvider.userModel!.name
+                                        .substring(0, 1)
+                                        .toUpperCase()
+                                  : 'U'),
                               style: const TextStyle(
                                 fontSize: 24,
                                 color: Colors.white,
