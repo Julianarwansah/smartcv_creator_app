@@ -13,8 +13,13 @@ import 'resume_preview_screen.dart';
 
 class ResumeFormScreen extends StatefulWidget {
   final ResumeModel? initialData;
+  final String? selectedTemplateId;
 
-  const ResumeFormScreen({super.key, this.initialData});
+  const ResumeFormScreen({
+    super.key,
+    this.initialData,
+    this.selectedTemplateId,
+  });
 
   @override
   State<ResumeFormScreen> createState() => _ResumeFormScreenState();
@@ -175,7 +180,7 @@ class _ResumeFormScreenState extends State<ResumeFormScreen> {
           personalSummary: _summaryController.text.isEmpty
               ? null
               : _summaryController.text,
-          templateId: 'minimalist',
+          templateId: widget.selectedTemplateId ?? 'minimalist',
           createdAt: DateTime.now(),
         );
 

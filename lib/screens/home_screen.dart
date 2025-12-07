@@ -3,8 +3,8 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/resume_provider.dart';
 import '../providers/portfolio_provider.dart';
-import 'resume/resume_form_screen.dart';
 import 'resume/resume_preview_screen.dart';
+import 'resume/template_selection_screen.dart';
 import 'profile/profile_screen.dart';
 import 'templates/template_gallery_screen.dart';
 import '../widgets/cv_template_card.dart';
@@ -169,7 +169,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const ResumeFormScreen(),
+                            builder: (context) =>
+                                const TemplateSelectionScreen(),
                           ),
                         );
                       },
